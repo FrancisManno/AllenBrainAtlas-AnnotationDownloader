@@ -29,6 +29,7 @@ $atlasImages = $atlasImageOrderData.SelectNodes("Response/atlas-images/*") | For
     $atlasImageOrder.Add($_.id,$iterator)
     $iterator = $iterator +1
 }
+$prefixLength=3
 
 
 #All docs on http://help.brain-map.org/display/api/Downloading+and+Displaying+SVG
@@ -40,9 +41,11 @@ $result.Content.Split() | where-object { ($_ -notcontains "id") -and -not ($_ -c
 
     $downloadedSvg =Invoke-WebRequest -Uri $uri
     #prefix the filename with the order
-    $prefix=$atlasImageOrder.$_
-    $downloadedSvg.Content | out-file ".\svg\$prefix`_$_.svg"
-    "Downloaded boundary file: .\svg\$prefix`_$_.svg"
+    $prefix=[string]$atlasImageOrder.$_
+    $prefixWithPadding=$prefix.PadLeft($prefixLength,'0')
+    $fileName = ".\svg\$prefixWithPadding`_$_.svg"
+    $downloadedSvg.Content | out-file $fileName
+    "Downloaded boundary file: $fileName"
     #don't hammer the site
     Start-Sleep -Milliseconds 500
 }
